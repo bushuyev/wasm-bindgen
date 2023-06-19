@@ -1,6 +1,8 @@
 .idea
 /target/
 **/*.rs.bk
+**/pkg
+**/target
 Cargo.lock
 node_modules
 package-lock.json

@@ -83,6 +83,7 @@ members = [
   "examples/paint",
   "examples/performance",
   "examples/raytrace-parallel",
+  "examples/wasm-threads-template",
   "examples/request-animation-frame",
   "examples/todomvc",
   "examples/wasm-audio-worklet",

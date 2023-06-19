@@ -32,6 +32,7 @@ pub fn get_memory(module: &Module) -> Result<MemoryId> {
 
 /// Get the `__shadow_stack_pointer`.
 pub fn get_shadow_stack_pointer(module: &Module) -> Option<GlobalId> {
+    
     let candidates = module
         .globals
         .iter()
@@ -45,6 +46,8 @@ pub fn get_shadow_stack_pointer(module: &Module) -> Option<GlobalId> {
             _ => false,
         })
         .collect::<Vec<_>>();
+
+    println!(">>>>>>>>>>>>get_shadow_stack_pointer={:?} candidates={:?}", module.globals, candidates);
 
     match candidates.len() {
         0 => None,
@@ -126,6 +129,8 @@ pub fn get_or_insert_start_builder(module: &mut Module) -> &mut FunctionBuilder 
         }
     };
 
+    println!(">>>>>>>>>>>>>..get_or_insert_start_builder prev_start={:?}", prev_start);
+
     let id = match prev_start {
         Ok(id) => id,
         Err(prev_start) => {
@@ -134,6 +139,8 @@ pub fn get_or_insert_start_builder(module: &mut Module) -> &mut FunctionBuilder 
             if let Some(prev_start) = prev_start {
                 builder.func_body().call(prev_start);
             }
+
+            println!(">>>>>>>>>>>>>FINISH={:?}", prev_start);
 
             let id = builder.finish(Vec::new(), &mut module.funcs);
             module.start = Some(id);

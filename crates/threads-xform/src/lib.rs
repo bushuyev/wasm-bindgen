@@ -2,10 +2,7 @@ use anyhow::{anyhow, bail, Error};
 use std::cmp;
 use std::env;
 use walrus::ir::Value;
-use walrus::{
-    ir::MemArg, ExportItem, FunctionId, GlobalId, GlobalKind, InitExpr, InstrSeqBuilder, MemoryId,
-    Module, ValType,
-};
+use walrus::{ir::MemArg, ExportItem, FunctionId, GlobalId, GlobalKind, InitExpr, InstrSeqBuilder, MemoryId, Module, ValType, FunctionBuilder};
 use wasm_bindgen_wasm_conventions as wasm_conventions;
 
 const PAGE_SIZE: u32 = 1 << 16;
@@ -23,7 +20,7 @@ pub struct Config {
     enabled: bool,
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Debug)]
 pub struct ThreadCount(walrus::LocalId);
 
 impl Config {
@@ -107,6 +104,8 @@ impl Config {
     ///
     /// More and/or less may happen here over time, stay tuned!
     pub fn run(&self, module: &mut Module) -> Result<Option<ThreadCount>, Error> {
+        println!(">>>>>>>>>>>>>>>>>>>>>>>> threads-xform::run<<<<<<<<<<<<<<<<<<<<<<<<");
+        
         if !self.is_enabled(module) {
             return Ok(None);
         }
@@ -159,6 +158,7 @@ impl Config {
         };
 
         let _ = module.exports.add("__stack_alloc", stack.alloc);
+        let _ = module.exports.add("__stack_pointer", stack.pointer);
 
         let thread_count = inject_start(module, &tls, &stack, thread_counter_addr, memory)?;
 
@@ -179,6 +179,8 @@ impl Config {
         // - Moreover, concurrent calls can lead to UB: the follower could be in the middle of a
         //   call while the leader is destroying its stack! You should make sure that this cannot happen.
         inject_destroy(module, &tls, &stack, memory)?;
+
+        // module.exports.add()
 
         Ok(Some(thread_count))
     }
@@ -319,6 +321,8 @@ fn inject_start(
     memory: MemoryId,
 ) -> Result<ThreadCount, Error> {
     use walrus::ir::*;
+    
+    println!("inject_start: thread_counter_addr={}", thread_counter_addr);
 
     assert!(stack.size % PAGE_SIZE == 0);
 
@@ -327,7 +331,9 @@ fn inject_start(
 
     let malloc = find_function(module, "__wbindgen_malloc")?;
 
-    let builder = wasm_bindgen_wasm_conventions::get_or_insert_start_builder(module);
+    // let builder = wasm_bindgen_wasm_conventions::get_or_insert_start_builder(module);
+
+    let mut builder= FunctionBuilder::new(&mut module.types, &[], &[]);
 
     let mut body = builder.func_body();
 
@@ -373,6 +379,14 @@ fn inject_start(
         .global_set(tls.base)
         .global_get(tls.base)
         .call(tls.init);
+    
+    if let Some(start_id) = module.start {
+        println!("adding old start");
+        
+        builder.func_body().call(start_id);
+    }
+
+    module.start = Some(builder.finish(vec![], &mut module.funcs));
 
     Ok(ThreadCount(thread_count))
 }

@@ -13,3 +13,8 @@ $ npm run serve
 ```
 
 and then visiting http://localhost:8080 in a browser should run the example!
+
+
+no threads -
+cargo build --target-dir ./target --target wasm32-unknown-unknown --release -Z build-std=std,panic_abort
+wasm2wat  target/wasm32-unknown-unknown/release/add.wasm > add_no_threads.wat

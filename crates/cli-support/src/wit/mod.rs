@@ -533,6 +533,7 @@ impl<'a> Context<'a> {
     }
 
     fn add_start_function(&mut self, id: FunctionId) -> Result<(), Error> {
+        println!(">>>>>>>>>>>>>> add_start_function: self.start_found={}, self.thread_count={:?}", self.start_found, self.thread_count);
         if self.start_found {
             bail!("cannot specify two `start` functions");
         }
