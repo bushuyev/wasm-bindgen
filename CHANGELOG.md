@@ -11,12 +11,32 @@
 * Add bindings for `WebAssembly.Tag` and `WebAssembly.Exception`.
   [#3484](https://github.com/rustwasm/wasm-bindgen/pull/3484)
 
+* Re-export `wasm-bindgen` from `js-sys` and `web-sys`.
+  [#3466](https://github.com/rustwasm/wasm-bindgen/pull/3466)
+
+* Re-export `js-sys` from `web-sys`.
+  [#3466](https://github.com/rustwasm/wasm-bindgen/pull/3466)
+
+* Add bindings for async variants of `Atomics.wait`.
+  [#3504](https://github.com/rustwasm/wasm-bindgen/pull/3504)
+
+* Add bindings for `WorkerGlobalScope.performance`.
+  [#3506](https://github.com/rustwasm/wasm-bindgen/pull/3506)
+
 ### Changed
 
 * Updated the WebGPU WebIDL.
   The optional `message` argument of [`GPUPipelineError`](https://www.w3.org/TR/webgpu/#gpupipelineerror)'s constructor has been manually specified as a required argument,
   because required arguments occurring after optional arguments are currently not supported by the generator.
   [#3480](https://github.com/rustwasm/wasm-bindgen/pull/3480)
+
+* Replaced `curl` with `ureq`. By default we now use Rustls instead of OpenSSL.
+  [#3511](https://github.com/rustwasm/wasm-bindgen/pull/3511)
+
+### Fixed
+
+* Fixed bindings and comments for `Atomics.wait`.
+  [#3509](https://github.com/rustwasm/wasm-bindgen/pull/3509)
 
 ## [0.2.87](https://github.com/rustwasm/wasm-bindgen/compare/0.2.86...0.2.87)
 
